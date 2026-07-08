@@ -25,6 +25,7 @@ func NewRootCmd() *cobra.Command {
 	root.AddCommand(newLogoutCmd())
 	root.AddCommand(newDescribeCmd())
 	root.AddCommand(newPingCmd())
+	root.AddCommand(newNoteCmd())
 	return root
 }
 
