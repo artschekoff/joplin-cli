@@ -23,6 +23,7 @@ func NewRootCmd() *cobra.Command {
 	root.PersistentFlags().String("base-url", "", "Joplin API base URL (overrides JOPLIN_BASE_URL)")
 	root.AddCommand(newLoginCmd())
 	root.AddCommand(newLogoutCmd())
+	root.AddCommand(newDescribeCmd())
 	return root
 }
 
