@@ -18,6 +18,9 @@ func NewRootCmd() *cobra.Command {
 		SilenceUsage:  true,
 		SilenceErrors: true,
 	}
+	// Keep the built-in shell-completion command out of `describe` and help:
+	// it carries no output schema and is noise in the machine-readable contract.
+	root.CompletionOptions.HiddenDefaultCmd = true
 	root.PersistentFlags().String("format", "json", "output format: json|text")
 	root.PersistentFlags().String("token", "", "Joplin API token (overrides JOPLIN_TOKEN)")
 	root.PersistentFlags().String("base-url", "", "Joplin API base URL (overrides JOPLIN_BASE_URL)")

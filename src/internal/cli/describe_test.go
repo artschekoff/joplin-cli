@@ -86,3 +86,33 @@ func TestDescribe_IncludesNestedCommandsWithOutput(t *testing.T) {
 		}
 	}
 }
+
+// The machine-readable schema must contain ONLY our commands, each with an
+// output schema — no un-annotated leakage such as cobra's shell-completion
+// commands.
+func TestDescribe_EveryCommandHasOutputSchema(t *testing.T) {
+	root := NewRootCmd()
+	buf := &bytes.Buffer{}
+	root.SetOut(buf)
+	root.SetArgs([]string{"describe"})
+	if err := root.Execute(); err != nil {
+		t.Fatalf("execute: %v", err)
+	}
+	var doc struct {
+		Commands []struct {
+			Name   string `json:"name"`
+			Output string `json:"output"`
+		} `json:"commands"`
+	}
+	if err := json.Unmarshal(buf.Bytes(), &doc); err != nil {
+		t.Fatalf("bad json: %v", err)
+	}
+	for _, c := range doc.Commands {
+		if strings.HasPrefix(c.Name, "completion") {
+			t.Errorf("shell-completion command %q leaked into the schema", c.Name)
+		}
+		if strings.TrimSpace(c.Output) == "" {
+			t.Errorf("command %q has no output schema", c.Name)
+		}
+	}
+}
