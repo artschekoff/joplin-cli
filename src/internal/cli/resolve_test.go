@@ -12,8 +12,6 @@ func TestResolveToken_EnvWins(t *testing.T) {
 	withFakeAuth(t)
 	_ = auth.SaveToken("stored-token")
 	t.Setenv("JOPLIN_TOKEN", "env-token")
-	root := NewRootCmd()
-	root.SetArgs([]string{"ping"}) // any command; we only need parsed flags
 	tok, err := resolveToken(rootWithFlags(t))
 	if err != nil {
 		t.Fatalf("resolve: %v", err)

@@ -293,7 +293,7 @@ Exit codes:
 Example:
   joplin-cli note import ./meeting.md`,
 		Annotations: map[string]string{
-			"output":  `{"note":{"id":"string","title":"string","body":"string","is_todo":"bool"},"imported_from":"string (path)"}`,
+			"output":  `{"note":{"id":"string","parent_id":"string","title":"string","body":"string","created_time":"RFC3339 or null","updated_time":"RFC3339 or null","is_todo":"bool"},"imported_from":"string (path)"}`,
 			"example": `joplin-cli note import ./meeting.md`,
 		},
 		Args: cobra.ExactArgs(1),
