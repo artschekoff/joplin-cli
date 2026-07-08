@@ -21,6 +21,8 @@ func NewRootCmd() *cobra.Command {
 	root.PersistentFlags().String("format", "json", "output format: json|text")
 	root.PersistentFlags().String("token", "", "Joplin API token (overrides JOPLIN_TOKEN)")
 	root.PersistentFlags().String("base-url", "", "Joplin API base URL (overrides JOPLIN_BASE_URL)")
+	root.AddCommand(newLoginCmd())
+	root.AddCommand(newLogoutCmd())
 	return root
 }
 
