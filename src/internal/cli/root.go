@@ -27,6 +27,7 @@ func NewRootCmd() *cobra.Command {
 	root.AddCommand(newPingCmd())
 	root.AddCommand(newNoteCmd())
 	root.AddCommand(newNotebookCmd())
+	root.AddCommand(newTagCmd())
 	return root
 }
 
