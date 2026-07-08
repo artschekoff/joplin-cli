@@ -42,6 +42,9 @@ Example:
 		RunE: func(cmd *cobra.Command, args []string) error {
 			key := strings.TrimSpace(token)
 			if key == "" {
+				// Prompt on stderr so stdout stays clean JSON. Without this the
+				// command looks frozen while it blocks reading stdin.
+				fmt.Fprintln(cmd.ErrOrStderr(), "Enter your Joplin API token, then press Enter:")
 				k, err := readTokenFromStdin(cmd.InOrStdin())
 				if err != nil {
 					return err
