@@ -241,7 +241,7 @@ Exit codes:
 Example:
   joplin-cli tag notes <tag-id>`,
 		Annotations: map[string]string{
-			"output":  `{"notes":[{"id":"string","title":"string","body":"string","is_todo":"bool"}],"count":"int","has_more":"bool"}`,
+			"output":  `{"notes":[{"id":"string","parent_id":"string","title":"string","body":"string","created_time":"RFC3339 or null","updated_time":"RFC3339 or null","is_todo":"bool"}],"count":"int","has_more":"bool"}`,
 			"example": `joplin-cli tag notes <tag-id>`,
 		},
 		Args: cobra.ExactArgs(1),

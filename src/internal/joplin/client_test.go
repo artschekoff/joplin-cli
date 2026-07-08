@@ -3,6 +3,7 @@ package joplin
 import (
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -60,6 +61,17 @@ func TestRequest_APIError_Surfaced(t *testing.T) {
 	}
 	if !containsAll(err.Error(), "404", "note not found") {
 		t.Fatalf("error text missing detail: %v", err)
+	}
+}
+
+func TestRequest_NetworkError_DoesNotLeakToken(t *testing.T) {
+	c := NewClient(Config{Token: "SECRET-TOKEN-123", BaseURL: "http://127.0.0.1:1", TimeoutSeconds: 1, HTTPRetries: 1, HTTPRetryBackoff: 0.01})
+	err := c.request(http.MethodGet, "/notes", nil, nil, nil)
+	if err == nil {
+		t.Fatal("expected a network error")
+	}
+	if strings.Contains(err.Error(), "SECRET-TOKEN-123") {
+		t.Fatalf("token leaked in error message: %v", err)
 	}
 }
 

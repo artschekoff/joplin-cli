@@ -3,6 +3,7 @@ package joplin
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -97,7 +98,12 @@ func (c *Client) request(method, path string, query url.Values, body any, out an
 
 		resp, err := c.http.Do(req)
 		if err != nil {
-			lastErr = fmt.Errorf("network error: %w", err)
+			// Strip the *url.Error wrapper: its Error() embeds the request URL,
+			// which carries ?token=<secret>. Never let that reach stderr/logs.
+			if ue := new(url.Error); errors.As(err, &ue) {
+				err = ue.Err
+			}
+			lastErr = fmt.Errorf("network error contacting Joplin: %w", err)
 			if attempt < retries {
 				time.Sleep(backoff(attempt, c.cfg.HTTPRetryBackoff))
 			}
