@@ -55,6 +55,38 @@ func TestNoteSearch_EmitsList(t *testing.T) {
 	}
 }
 
+func TestNoteSearch_AcceptsQueryFlag(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`{"items":[{"id":"n1","title":"A"}],"has_more":false}`))
+	}))
+	defer srv.Close()
+
+	root := NewRootCmd()
+	buf := &bytes.Buffer{}
+	root.SetOut(buf)
+	root.SetErr(buf)
+	root.SetArgs([]string{"note", "search", "--query", "A", "--token", "test-token", "--base-url", srv.URL})
+	if err := root.Execute(); err != nil {
+		t.Fatalf("search --query: %v\n%s", err, buf.String())
+	}
+	var out noteListOut
+	_ = json.Unmarshal(buf.Bytes(), &out)
+	if out.Count != 1 || out.Notes[0].ID != "n1" {
+		t.Fatalf("unexpected: %+v", out)
+	}
+}
+
+func TestNoteSearch_ErrorsWhenNoQuery(t *testing.T) {
+	root := NewRootCmd()
+	buf := &bytes.Buffer{}
+	root.SetOut(buf)
+	root.SetErr(buf)
+	root.SetArgs([]string{"note", "search", "--token", "test-token", "--base-url", "http://unused"})
+	if err := root.Execute(); err == nil {
+		t.Fatalf("expected error when no query given, got nil\n%s", buf.String())
+	}
+}
+
 func TestNoteImport_ParsesTitleFromHeading(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte(`{"id":"n9","title":"My Title","body":"Line one"}`))

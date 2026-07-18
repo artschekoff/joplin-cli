@@ -51,3 +51,12 @@ Match the user's task against the table below. Multiple rows can match — pick 
 - When resolving a note/notebook/tag by name rather than id, list first (`note search`, `notebook list`, `tag list`) to get the id, and confirm the match before any write or delete.
 - If no row matches, ask the user to clarify what they want to do with Joplin.
 - The `commands/` directory is the static reference; `joplin-cli describe` is the runtime reference — prefer the latter when they disagree.
+
+## Step 5 — Common pitfalls (read before piping to `jq`)
+
+- **List outputs are wrapped objects, not arrays.** Extract the inner array by name; `jq '.[]'` on these silently returns nothing and looks like "empty":
+  - `note search "<q>"` → `{"count","has_more","notes":[…]}` → use `jq '.notes[]'`
+  - `notebook list` → `{"count","notebooks":[…]}` → use `jq '.notebooks[]'`
+  - `tag list` → `{"count","tags":[…]}` → use `jq '.tags[]'`
+  - If a list looks empty, re-check with the raw JSON (no `jq`) before concluding there's no data.
+- **`note search` query is positional** — `joplin-cli note search "text"`. The `--query`/`-q` flag is also accepted. There is no other flag name for it.

@@ -29,6 +29,7 @@ func newNoteCmd() *cobra.Command {
 
 func newNoteSearchCmd() *cobra.Command {
 	var limit int
+	var queryFlag string
 	cmd := &cobra.Command{
 		Use:   "search <query>",
 		Short: "Full-text search notes",
@@ -36,7 +37,8 @@ func newNoteSearchCmd() *cobra.Command {
 'tag:work', 'notebook:Journal', 'updated:day-7').
 
 Input:
-  <query>        (required) positional search string
+  <query>        search string (positional; or use --query)
+  --query STRING search string (alias for the positional arg)
   --limit INT    max results, 1-100 (default 100)
 
 Output (stdout, JSON):
@@ -53,13 +55,20 @@ Example:
 			"output":  `{"notes":[{"id":"string","parent_id":"string","title":"string","body":"string","created_time":"RFC3339 or null","updated_time":"RFC3339 or null","is_todo":"bool"}],"count":"int","has_more":"bool"}`,
 			"example": `joplin-cli note search "meeting" --limit 20`,
 		},
-		Args: cobra.ExactArgs(1),
+		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			query := queryFlag
+			if len(args) == 1 {
+				query = args[0]
+			}
+			if query == "" {
+				return fmt.Errorf("a search query is required (pass it positionally or with --query)")
+			}
 			client, err := newClient(cmd)
 			if err != nil {
 				return err
 			}
-			page, err := client.SearchNotes(args[0], limit)
+			page, err := client.SearchNotes(query, limit)
 			if err != nil {
 				return err
 			}
@@ -68,6 +77,7 @@ Example:
 		},
 	}
 	cmd.Flags().IntVar(&limit, "limit", 100, "maximum number of results (1-100)")
+	cmd.Flags().StringVarP(&queryFlag, "query", "q", "", "search string (alias for the positional arg)")
 	return cmd
 }
 
